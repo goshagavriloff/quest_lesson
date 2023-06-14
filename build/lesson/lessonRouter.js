@@ -11,22 +11,30 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const LessonService_1 = require("./LessonService");
+const searchHelper_1 = require("./helper/searchHelper");
 const lessonRouter = (0, express_1.Router)();
-// lessonRouter.put(
-//   "/users/:id",
-//   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-//     try {
-//       const user: User = userService.getUserFromRequest(req);
-//       await userService.save(user);
-//       res.json({ ok: true });
-//     } catch (err) {
-//       next(err);
-//     }
-//   }
-// );
 lessonRouter.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const lessonInfo = yield LessonService_1.lessonService.search(req);
+        const options = {
+            date: req.query.date,
+            status: req.query.status,
+            teacherIds: req.query.teacherIds,
+            studentsCount: req.query.studentsCount,
+            page: req.query.page || "1",
+            lessonsPerPage: req.query.lessonsPerPage || "5"
+        };
+        const parser = searchHelper_1.searchLessonSchema.parse(options);
+        res.locals.options = parser;
+        console.log(req.query);
+        next();
+    }
+    catch (err) {
+        next(err);
+    }
+}), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const options = res.locals.options;
+        const lessonInfo = yield LessonService_1.lessonService.search(options);
         if (lessonInfo != null) {
             res.json(lessonInfo);
         }

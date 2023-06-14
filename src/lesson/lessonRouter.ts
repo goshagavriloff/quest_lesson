@@ -1,21 +1,35 @@
 import { NextFunction, Request, Response, Router } from "express";
 import {LessonQuery } from "../types/Lesson";
 import { lessonService } from "./LessonService";
+import { searchLessonSchema } from "./helper/searchHelper";
 
 const lessonRouter: Router = Router();
 lessonRouter.get(
   "/",
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const options:LessonQuery={
-        date:req.params.date,
-        status:req.params.status,
-        teacherIds:req.params.teacherIds,
-        studentsCount:req.params.studentsCount,
-        page:req.params.page||"1",
-        lessonsPerPage:req.params.lessonsPerPage||"5"
-    };
-      const lessonInfo = await lessonService.search(options);
+      const options={
+        date:req.query.date,
+        status:req.query.status,
+        teacherIds:req.query.teacherIds,
+        studentsCount:req.query.studentsCount,
+        page:req.query.page||"1",
+        lessonsPerPage:req.query.lessonsPerPage||"5"
+      };
+      const parser:LessonQuery=searchLessonSchema.parse(options) as LessonQuery;
+      res.locals.options=parser;
+      
+      next();      
+    } catch (err) {
+      next(err);
+    }
+
+  }, 
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+
+      const options= res.locals.options;
+      const lessonInfo = await lessonService.search(options as LessonQuery);
       if (lessonInfo != null) {
         res.json(lessonInfo);
       } else {

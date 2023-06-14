@@ -19,12 +19,12 @@ export type Student={
 };
 
 export type LessonQuery={
-    date:string;
-    status:string;
-    teacherIds:string;
-    studentsCount:string;
-    page:string;
-    lessonsPerPage:string;
+    date?:string[];
+    status?:number;
+    teacherIds?:string;
+    studentsCount?:number;
+    page?:number;
+    lessonsPerPage?:number;
 };
 
 type StudentLessons=Lesson & {visit:boolean};

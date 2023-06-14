@@ -88,7 +88,6 @@ class LessonRepository extends BaseRepository_1.BaseRepository {
             const res = yield client.query(query);
             yield client.release();
             const { data } = res.rows[0];
-            console.log(data);
             return data || [];
         });
     }
