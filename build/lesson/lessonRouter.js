@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
+const Lesson_1 = require("../types/Lesson");
 const LessonService_1 = require("./LessonService");
 const searchHelper_1 = require("./helper/searchHelper");
 const lessonRouter = (0, express_1.Router)();
@@ -20,12 +21,11 @@ lessonRouter.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, func
             status: req.query.status,
             teacherIds: req.query.teacherIds,
             studentsCount: req.query.studentsCount,
-            page: req.query.page || "1",
-            lessonsPerPage: req.query.lessonsPerPage || "5"
+            page: req.query.page || Lesson_1.defaultPage,
+            lessonsPerPage: req.query.lessonsPerPage || Lesson_1.defaultPerPage
         };
         const parser = searchHelper_1.searchLessonSchema.parse(options);
         res.locals.options = parser;
-        console.log(req.query);
         next();
     }
     catch (err) {

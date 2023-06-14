@@ -1,11 +1,11 @@
 import { z } from "zod";
 import Validator from "validator";
 export const transformDate = z.string().refine(
-    (val) => val.split(',').every(el=>Validator.isDate(el, {format: 'YYYY-MM-DD'}))
+    (val) => val.split(',').every(el=>Validator.isDate(el, {format: 'YYYY-MM-DD',strictMode:true}))
 ).refine(
     (val) => val.split(',').length <= 2
 ).transform(
-    (val) => val.split(',')
+    (val) => val.split(',').sort((a,b)=>Date.parse(a)-Date.parse(b))
 );
 
 
@@ -24,6 +24,8 @@ export const transformStudentsCount = z.string().refine(
     (val) => val.split(',').length <= 2
 ).refine(
     (val) => val.split(',').every(el => !isNaN(+el))
+).transform(
+    (val) => val.split(',').map(el=>Number(el)).sort()
 );
 
 export const transformPage = z.string().refine(

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, Router } from "express";
-import {LessonQuery } from "../types/Lesson";
+import {LessonQuery,defaultPage,defaultPerPage } from "../types/Lesson";
 import { lessonService } from "./LessonService";
 import { searchLessonSchema } from "./helper/searchHelper";
 
@@ -13,8 +13,8 @@ lessonRouter.get(
         status:req.query.status,
         teacherIds:req.query.teacherIds,
         studentsCount:req.query.studentsCount,
-        page:req.query.page||"1",
-        lessonsPerPage:req.query.lessonsPerPage||"5"
+        page:req.query.page||defaultPage,
+        lessonsPerPage:req.query.lessonsPerPage||defaultPerPage
       };
       const parser:LessonQuery=searchLessonSchema.parse(options) as LessonQuery;
       res.locals.options=parser;

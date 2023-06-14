@@ -19,12 +19,15 @@ export type Student={
 };
 
 export type LessonQuery={
-    date?:string[];
+    date?:Date[];
     status?:number;
     teacherIds?:string;
-    studentsCount?:number;
+    studentsCount?:number[];
     page?:number;
     lessonsPerPage?:number;
 };
+
+export const defaultPage:string="1";
+export const defaultPerPage:string="5";
 
 type StudentLessons=Lesson & {visit:boolean};

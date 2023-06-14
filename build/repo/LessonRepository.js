@@ -10,17 +10,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.lessonRepository = exports.LessonRepository = void 0;
+const Lesson_1 = require("../types/Lesson");
 const BaseRepository_1 = require("./BaseRepository");
 const database_1 = require("../config/database");
 class LessonRepository extends BaseRepository_1.BaseRepository {
     get(params) {
         return __awaiter(this, void 0, void 0, function* () {
+            const limit = params.lessonsPerPage || Number(Lesson_1.defaultPerPage);
+            const page = params.page || Number(Lesson_1.defaultPage);
+            const offset = (page - 1) * limit;
+            const filter = this.getFilterQuery(params);
             const query = `
         select
         json_agg(to_jsonb(lesson_info.*)) as data
     from
         (
-        select
+            select
             t1.*,
             t2.students,
             t3.teachers
@@ -42,8 +47,10 @@ class LessonRepository extends BaseRepository_1.BaseRepository {
                 l.id) as t1
         inner join 
      (
+     
             select
                 s.lesson_id,
+                count(s.*) as "allCount",
                 json_agg(to_jsonb(s.*)- 'lesson_id') as students
             from
                 (
@@ -57,11 +64,16 @@ class LessonRepository extends BaseRepository_1.BaseRepository {
                 inner join students s2 on
                     ls2.student_id = s2.id) s
             group by
-                s.lesson_id ) as t2 on
+                s.lesson_id 
+                
+                
+            ) as t2 on
             t1.id = t2.lesson_id
+            
         inner join (
             select
                 s.lesson_id,
+                ARRAY_AGG(s.id) teachers_id,
                 json_agg(to_jsonb(s.*)- 'lesson_id') as teachers
             from
                 (
@@ -77,7 +89,9 @@ class LessonRepository extends BaseRepository_1.BaseRepository {
                 s.lesson_id
     )
     as t3 on
-            t1.id = t3.lesson_id
+            t1.id = t3.lesson_id 
+    ${filter}
+    limit ${limit} offset ${offset}
     )
     
     as lesson_info;
@@ -90,6 +104,27 @@ class LessonRepository extends BaseRepository_1.BaseRepository {
             const { data } = res.rows[0];
             return data || [];
         });
+    }
+    getFilterQuery(params) {
+        const filters = [];
+        if (params.date) {
+            const minDate = params.date[0];
+            const maxDate = params.date[1] || minDate;
+            filters.push(` t1.date between '${minDate}' and '${maxDate}' 
+            `);
+        }
+        if (params.status !== undefined) {
+            filters.push(` t1.status=${params.status} `);
+        }
+        if (params.studentsCount) {
+            const minCount = params.studentsCount[0];
+            const maxCount = params.studentsCount[1] || minCount;
+            filters.push(` t2.allCount between ${minCount} and ${maxCount} `);
+        }
+        if (params.teacherIds) {
+            filters.push(` t3.teachers_id && '{${params.teacherIds}}'::int[] `);
+        }
+        return filters.length > 0 ? `where ${filters.join(" and ")}` : "";
     }
 }
 exports.LessonRepository = LessonRepository;
