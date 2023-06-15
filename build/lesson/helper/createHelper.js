@@ -14,7 +14,7 @@ const zod_1 = require("zod");
 const validate_1 = require("./validate");
 const TeacherService_1 = require("../../teacher/TeacherService");
 const baseLessonSchema = zod_1.z.object({
-    teacherIds: zod_1.z.promise(zod_1.z.array(zod_1.z.number().refine((id) => __awaiter(void 0, void 0, void 0, function* () { return yield TeacherService_1.teacherService.checkIfExists(id); })))),
+    teacherIds: (zod_1.z.array(zod_1.z.number().refine((id) => __awaiter(void 0, void 0, void 0, function* () { return yield TeacherService_1.teacherService.checkIfExists(id); })))),
     title: zod_1.z.string(),
     days: validate_1.checkDaysList,
     firstDate: validate_1.checkDate,

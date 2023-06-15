@@ -57,18 +57,16 @@ lessonRouter.post("/lessons", (req, res, next) => __awaiter(void 0, void 0, void
             lessonsCount: req.body.lessonsCount,
             lastDate: req.body.lastDate
         };
-        const parserPromise = createHelper_1.createLessonSchema.safeParseAsync(options).catch((err) => {
-            throw err;
-        });
-        const parserAsync = yield parserPromise;
-        if (!parserAsync.success) {
-            next(parserAsync.error);
-        }
-        else {
-            const parser = parserAsync.data;
-            res.locals.options = parser;
-        }
-        next();
+        yield createHelper_1.createLessonSchema.safeParseAsync(options).then((result) => {
+            if (result.success) {
+                const parser = result.data;
+                res.locals.options = parser;
+                next();
+            }
+            else {
+                throw result.error;
+            }
+        }).catch((err) => next(err));
     }
     catch (err) {
         next(err);

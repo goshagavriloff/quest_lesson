@@ -28,7 +28,7 @@ export type LessonQuery={
 };
 
 export type LessonSaveQuery={
-    teacherIds:Promise<number[]>;
+    teacherIds:number[];
     title:string;
     days:number[];
     firstDate:string;

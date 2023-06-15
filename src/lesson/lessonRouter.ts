@@ -55,19 +55,19 @@ lessonRouter.post(
         lastDate:req.body.lastDate
       };
       
-      const parserPromise=createLessonSchema.safeParseAsync(options).catch((err)=>{
-        throw err;
-      });
-      const parserAsync=await parserPromise;
-      
-      if (!parserAsync.success){
-        next(parserAsync.error);
-      } else {
-        const parser=parserAsync.data as LessonSaveQuery;
-        res.locals.options=parser;
-      }
-      
-      next();      
+      await createLessonSchema.safeParseAsync(options).then(
+        (result)=>{
+          if (result.success){
+            const parser=result.data as LessonSaveQuery;
+            res.locals.options=parser;
+            next();
+          } else {
+            throw result.error;
+          }
+          
+        }
+      ).catch((err)=>next(err));
+     
     } catch (err) {
       next(err);
     }

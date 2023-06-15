@@ -5,7 +5,7 @@ import { teacherService } from "../../teacher/TeacherService";
 
 
 const baseLessonSchema = z.object({
-    teacherIds: z.promise(z.array(z.number().refine(
+    teacherIds: (z.array(z.number().refine(
         async (id) => await teacherService.checkIfExists(id)
         ))),
     title: z.string(),
