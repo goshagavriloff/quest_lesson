@@ -13,6 +13,7 @@ const express_1 = require("express");
 const Lesson_1 = require("../types/Lesson");
 const LessonService_1 = require("./LessonService");
 const searchHelper_1 = require("./helper/searchHelper");
+const createHelper_1 = require("./helper/createHelper");
 const lessonRouter = (0, express_1.Router)();
 lessonRouter.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -35,6 +36,47 @@ lessonRouter.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, func
     try {
         const options = res.locals.options;
         const lessonInfo = yield LessonService_1.lessonService.search(options);
+        if (lessonInfo != null) {
+            res.json(lessonInfo);
+        }
+        else {
+            res.sendStatus(404);
+        }
+    }
+    catch (err) {
+        next(err);
+    }
+}));
+lessonRouter.post("/lessons", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const options = {
+            teacherIds: req.body.teacherIds,
+            title: req.body.title,
+            days: req.body.days,
+            firstDate: req.body.firstDate,
+            lessonsCount: req.body.lessonsCount,
+            lastDate: req.body.lastDate
+        };
+        const parserPromise = createHelper_1.createLessonSchema.safeParseAsync(options).catch((err) => {
+            throw err;
+        });
+        const parserAsync = yield parserPromise;
+        if (!parserAsync.success) {
+            next(parserAsync.error);
+        }
+        else {
+            const parser = parserAsync.data;
+            res.locals.options = parser;
+        }
+        next();
+    }
+    catch (err) {
+        next(err);
+    }
+}), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const options = res.locals.options;
+        const lessonInfo = yield LessonService_1.lessonService.create(options);
         if (lessonInfo != null) {
             res.json(lessonInfo);
         }

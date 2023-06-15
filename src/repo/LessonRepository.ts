@@ -88,14 +88,14 @@ export class LessonRepository extends BaseRepository {
     
     
         `;
-        
+
         const client: PoolClient = await pgPool.connect();
         const res: QueryResult<any> = await client.query(query);
         await client.release();
         const { data } = res.rows[0];
         return data || [] as Lesson[];
     }
-
+    
     private getFilterQuery(params: LessonQuery): string {
         const filters: string[] = [];
         if (params.date) {

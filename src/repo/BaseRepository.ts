@@ -12,15 +12,24 @@ export abstract class BaseRepository {
 
     }
     private async tableExists(): Promise<boolean> {
-        const client:PoolClient=await pgPool.connect();
- 
-        const res:QueryResult<any>=await client.query(`SELECT to_regclass('${this.db}.public.${this.tableName}');`);
-        
-        await client.release();
-        const {to_regclass}=res.rows[0];
-        
-        return (to_regclass!==null);
+      const query=`SELECT to_regclass('${this.db}.public.${this.tableName}');`;
+      return await this.queryIsNull(query);
     }
+
+    private async queryIsNull(query:string): Promise<boolean> {
+      const client:PoolClient=await pgPool.connect();
+ 
+      const res:QueryResult<any>=await client.query(query);
+      await client.release();
+      var result=null;
+      if (res.rows!=undefined){
+        result=res.rows[0];
+      }
+      
+      return (result!==null)&&(result!==undefined);
+
+    }
+
     private async createTable(): Promise<any> {
         // todo
         // create sql query (foreach col=>type in cols) 
@@ -29,7 +38,7 @@ export abstract class BaseRepository {
         //
     }
 
-    public async ensureTableExists(): Promise<any> {
+    public async ensureTableExists(): Promise<void> {
         if (this.tableExistsFlag === false) {
           if (!(await this.tableExists())) {
             console.log(`Creating ${this.tableName} table`);
@@ -39,7 +48,12 @@ export abstract class BaseRepository {
           this.tableExistsFlag = true;
           
         }
-      }
-      
+    }
+    
+    public async recordExistsById(id:number): Promise<boolean> {    
+      const query=`SELECT id from ${this.db}.public.${this.tableName} where id=${id};`;
+
+      return await this.queryIsNull(query);
+    } 
 
 }

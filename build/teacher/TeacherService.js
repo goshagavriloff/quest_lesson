@@ -9,18 +9,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.lessonService = void 0;
-const LessonRepository_1 = require("../repo/LessonRepository");
-class LessonService {
-    create(options) {
+exports.teacherService = void 0;
+const TeacherRepository_1 = require("../repo/TeacherRepository");
+class TeacherService {
+    checkIfExists(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return {};
-        });
-    }
-    search(options) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield LessonRepository_1.lessonRepository.get(options);
+            return yield TeacherRepository_1.teacherRepository.recordExistsById(id);
         });
     }
 }
-exports.lessonService = new LessonService();
+exports.teacherService = new TeacherService();

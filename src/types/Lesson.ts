@@ -19,7 +19,7 @@ export type Student={
 };
 
 export type LessonQuery={
-    date?:Date[];
+    date?:string[];
     status?:number;
     teacherIds?:string;
     studentsCount?:number[];
@@ -27,7 +27,21 @@ export type LessonQuery={
     lessonsPerPage?:number;
 };
 
+export type LessonSaveQuery={
+    teacherIds:Promise<number[]>;
+    title:string;
+    days:number[];
+    firstDate:string;
+    lessonsCount?:number;
+    lastDate?:string;
+};
+
 export const defaultPage:string="1";
 export const defaultPerPage:string="5";
 
-type StudentLessons=Lesson & {visit:boolean};
+export const limit={
+    year:1,
+    maxCount:300
+};
+
+type StudentLessons=Student & {visit:boolean};

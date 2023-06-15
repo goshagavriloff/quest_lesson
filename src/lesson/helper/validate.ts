@@ -1,5 +1,14 @@
 import { z } from "zod";
 import Validator from "validator";
+
+export const checkDaysList=z.array(z.number().refine(
+    (val)=> val>=0 && val<7
+));
+
+export const checkDate=z.string().refine(
+    (val)=>Validator.isDate(val, {format: 'YYYY-MM-DD',strictMode:true})
+);
+
 export const transformDate = z.string().refine(
     (val) => val.split(',').every(el=>Validator.isDate(el, {format: 'YYYY-MM-DD',strictMode:true}))
 ).refine(
