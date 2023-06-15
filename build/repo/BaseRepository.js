@@ -19,11 +19,20 @@ class BaseRepository {
     }
     tableExists() {
         return __awaiter(this, void 0, void 0, function* () {
+            const query = `SELECT to_regclass('${this.db}.public.${this.tableName}');`;
+            return yield this.queryIsNull(query);
+        });
+    }
+    queryIsNull(query) {
+        return __awaiter(this, void 0, void 0, function* () {
             const client = yield database_1.pgPool.connect();
-            const res = yield client.query(`SELECT to_regclass('${this.db}.public.${this.tableName}');`);
+            const res = yield client.query(query);
             yield client.release();
-            const { to_regclass } = res.rows[0];
-            return (to_regclass !== null);
+            var result = null;
+            if (res.rows != undefined) {
+                result = res.rows[0];
+            }
+            return (result !== null) && (result !== undefined);
         });
     }
     createTable() {
@@ -45,6 +54,12 @@ class BaseRepository {
                 }
                 this.tableExistsFlag = true;
             }
+        });
+    }
+    recordExistsById(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const query = `SELECT id from ${this.db}.public.${this.tableName} where id=${id};`;
+            return yield this.queryIsNull(query);
         });
     }
 }
