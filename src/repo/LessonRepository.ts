@@ -159,13 +159,13 @@ export class LessonRepository extends BaseRepository {
         if (params.date) {
             const minDate = params.date[0];
             const maxDate = params.date[1] || minDate;
-            filters.push(` t1.date between '${minDate}' and '${maxDate}' 
+            filters.push(` t0.date between '${minDate}' and '${maxDate}' 
             `);
 
         }
 
         if (params.status!==undefined) {
-            filters.push(` t1.status=${params.status} `);
+            filters.push(` t0.status=${params.status} `);
         }
 
         if (params.studentsCount) {
