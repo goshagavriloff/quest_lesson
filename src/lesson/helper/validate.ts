@@ -5,11 +5,13 @@ export const checkDaysList=z.array(z.number().refine(
     (val)=> val>=0 && val<7
 ));
 
-export const checkDate=z.string().refine(
+export const transformDate=z.string().refine(
     (val)=>Validator.isDate(val, {format: 'YYYY-MM-DD',strictMode:true})
+).transform(
+    (val)=>new Date(val)
 );
 
-export const transformDate = z.string().refine(
+export const transformDateList = z.string().refine(
     (val) => val.split(',').every(el=>Validator.isDate(el, {format: 'YYYY-MM-DD',strictMode:true}))
 ).refine(
     (val) => val.split(',').length <= 2

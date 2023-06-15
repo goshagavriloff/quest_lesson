@@ -13,7 +13,39 @@ exports.lessonRepository = exports.LessonRepository = void 0;
 const Lesson_1 = require("../types/Lesson");
 const BaseRepository_1 = require("./BaseRepository");
 const database_1 = require("../config/database");
+const LessonTeacherRepository_1 = require("./LessonTeacherRepository");
 class LessonRepository extends BaseRepository_1.BaseRepository {
+    save(record, teacherIds) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const query = `INSERT INTO lessons ( date, title, status)
+        SELECT '${record.date}'	,'${record.title}',${record.status}
+        WHERE
+        NOT EXISTS (
+        SELECT id FROM lessons WHERE date = '${record.date}' and title='${record.title}' and status=${record.status}
+        )
+        returning id;`;
+            const client = yield database_1.pgPool.connect();
+            const promiseTeachers = [];
+            const insertedLesson = yield client.query(query);
+            yield client.release();
+            if (insertedLesson.rowCount == 0) {
+                return;
+            }
+            const row = insertedLesson.rows[0];
+            if (teacherIds) {
+                for (let teacher_id of teacherIds) {
+                    const lsRecord = {
+                        lesson_id: row.id,
+                        teacher_id,
+                    };
+                    promiseTeachers.push(LessonTeacherRepository_1.lessonTeacherRepository.save(lsRecord));
+                }
+            }
+            return yield Promise.all(promiseTeachers).then((data) => {
+                return row.id;
+            });
+        });
+    }
     get(params) {
         return __awaiter(this, void 0, void 0, function* () {
             const limit = params.lessonsPerPage || Number(Lesson_1.defaultPerPage);

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { checkDate, checkDaysList } from "./validate";
+import { transformDate, checkDaysList } from "./validate";
 import { teacherService } from "../../teacher/TeacherService";
 
 
@@ -10,9 +10,9 @@ const baseLessonSchema = z.object({
         ))),
     title: z.string(),
     days: checkDaysList,
-    firstDate: checkDate,
+    firstDate: transformDate,
     lessonsCount: z.number().positive().refine((val)=>val<=300),
-    lastDate: checkDate,
+    lastDate: transformDate,
 });
 
 export const createLessonSchema = z.union(

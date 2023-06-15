@@ -17,9 +17,9 @@ const baseLessonSchema = zod_1.z.object({
     teacherIds: (zod_1.z.array(zod_1.z.number().refine((id) => __awaiter(void 0, void 0, void 0, function* () { return yield TeacherService_1.teacherService.checkIfExists(id); })))),
     title: zod_1.z.string(),
     days: validate_1.checkDaysList,
-    firstDate: validate_1.checkDate,
+    firstDate: validate_1.transformDate,
     lessonsCount: zod_1.z.number().positive().refine((val) => val <= 300),
-    lastDate: validate_1.checkDate,
+    lastDate: validate_1.transformDate,
 });
 exports.createLessonSchema = zod_1.z.union([baseLessonSchema.partial({
         lessonsCount: true,

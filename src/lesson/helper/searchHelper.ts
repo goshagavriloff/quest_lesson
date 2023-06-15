@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { transformDate,transformStatus,transformTeachers,transformStudentsCount,transformPage} from "./validate";
+import { transformDateList,transformStatus,transformTeachers,transformStudentsCount,transformPage} from "./validate";
 
 export const searchLessonSchema = z.object({
-  date: transformDate,
+  date: transformDateList,
   status: transformStatus,
   teacherIds: transformTeachers,
   studentsCount: transformStudentsCount,

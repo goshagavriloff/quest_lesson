@@ -10,29 +10,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const Lesson_1 = require("../types/Lesson");
 const LessonService_1 = require("./LessonService");
-const searchHelper_1 = require("./helper/searchHelper");
-const createHelper_1 = require("./helper/createHelper");
+const lessonSearchMiddleware_1 = require("./middleware/lessonSearchMiddleware");
+const lessonSaveMiddleware_1 = require("./middleware/lessonSaveMiddleware");
 const lessonRouter = (0, express_1.Router)();
-lessonRouter.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const options = {
-            date: req.query.date,
-            status: req.query.status,
-            teacherIds: req.query.teacherIds,
-            studentsCount: req.query.studentsCount,
-            page: req.query.page || Lesson_1.defaultPage,
-            lessonsPerPage: req.query.lessonsPerPage || Lesson_1.defaultPerPage
-        };
-        const parser = searchHelper_1.searchLessonSchema.parse(options);
-        res.locals.options = parser;
-        next();
-    }
-    catch (err) {
-        next(err);
-    }
-}), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+lessonRouter.get("/", lessonSearchMiddleware_1.lessonSearchMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const options = res.locals.options;
         const lessonInfo = yield LessonService_1.lessonService.search(options);
@@ -47,36 +29,12 @@ lessonRouter.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, func
         next(err);
     }
 }));
-lessonRouter.post("/lessons", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const options = {
-            teacherIds: req.body.teacherIds,
-            title: req.body.title,
-            days: req.body.days,
-            firstDate: req.body.firstDate,
-            lessonsCount: req.body.lessonsCount,
-            lastDate: req.body.lastDate
-        };
-        yield createHelper_1.createLessonSchema.safeParseAsync(options).then((result) => {
-            if (result.success) {
-                const parser = result.data;
-                res.locals.options = parser;
-                next();
-            }
-            else {
-                throw result.error;
-            }
-        }).catch((err) => next(err));
-    }
-    catch (err) {
-        next(err);
-    }
-}), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+lessonRouter.post("/lessons", lessonSaveMiddleware_1.lessonSaveMiddleware, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const options = res.locals.options;
-        const lessonInfo = yield LessonService_1.lessonService.create(options);
-        if (lessonInfo != null) {
-            res.json(lessonInfo);
+        const createdLessons = yield LessonService_1.lessonService.create(options);
+        if (createdLessons != null) {
+            res.json({ createdLessons });
         }
         else {
             res.sendStatus(404);

@@ -31,16 +31,28 @@ export type LessonSaveQuery={
     teacherIds:number[];
     title:string;
     days:number[];
-    firstDate:string;
+    firstDate:Date;
     lessonsCount?:number;
-    lastDate?:string;
+    lastDate?:Date;
+};
+
+export type LessonRecord={
+    id?:number,
+    date:string,
+    title:string,
+    status:string
+};
+
+export type LessonTeacherRecord={
+    lesson_id:number,
+    teacher_id:number  
 };
 
 export const defaultPage:string="1";
 export const defaultPerPage:string="5";
 
 export const limit={
-    year:1,
+    maxYearDist:1,
     maxCount:300
 };
 

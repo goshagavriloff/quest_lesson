@@ -1,9 +1,49 @@
 import { PoolClient, QueryResult } from "pg";
-import { Lesson, LessonQuery, defaultPage, defaultPerPage } from "../types/Lesson";
+import { Lesson, LessonQuery, LessonRecord, LessonSaveQuery, LessonTeacherRecord, defaultPage, defaultPerPage } from "../types/Lesson";
 import { BaseRepository } from "./BaseRepository";
 import { pgPool } from "../config/database";
+import { lessonTeacherRepository } from "./LessonTeacherRepository";
 
 export class LessonRepository extends BaseRepository {
+
+    public async save(record:LessonRecord,teacherIds?:number[]):Promise<number|void>{
+        const query = `INSERT INTO lessons ( date, title, status)
+        SELECT '${record.date}'	,'${record.title}',${record.status}
+        WHERE
+        NOT EXISTS (
+        SELECT id FROM lessons WHERE date = '${record.date}' and title='${record.title}' and status=${record.status}
+        )
+        returning id;`;
+
+        const client: PoolClient = await pgPool.connect();
+        const promiseTeachers:Promise<void>[]=[];
+        const insertedLesson=await client.query(query);
+
+        await client.release();
+        
+        
+        if (insertedLesson.rowCount==0){
+            return;
+        }
+        const row=insertedLesson.rows[0];
+        
+        if (teacherIds){
+            for (let teacher_id of teacherIds){
+                const lsRecord:LessonTeacherRecord={
+                    lesson_id:row.id,
+                    teacher_id,
+                };
+                promiseTeachers.push(lessonTeacherRepository.save(lsRecord));
+            }
+
+        }
+
+        return  await Promise.all(promiseTeachers).then((data)=>{
+            return row.id;
+        });
+
+    }
+
     public async get(params: LessonQuery): Promise<Lesson[]> {
         const limit = params.lessonsPerPage || Number(defaultPerPage);
         const page = params.page || Number(defaultPage);
@@ -95,7 +135,7 @@ export class LessonRepository extends BaseRepository {
         const { data } = res.rows[0];
         return data || [] as Lesson[];
     }
-    
+
     private getFilterQuery(params: LessonQuery): string {
         const filters: string[] = [];
         if (params.date) {
