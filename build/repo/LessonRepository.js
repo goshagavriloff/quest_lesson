@@ -57,17 +57,35 @@ class LessonRepository extends BaseRepository_1.BaseRepository {
         json_agg(to_jsonb(lesson_info.*)) as data
     from
         (
-            select
-            t1.*,
-            t2.students,
-            t3.teachers
+        select
+            t0.*,
+            case
+                when t1."visitCount" is null then 0
+                else t1."visitCount"
+            end as "visitCount"
+          ,
+            case
+                when t2.students is null then '[]'
+                else t2.students
+            end as students,
+            case
+                when t3.teachers is null then '[]'
+                else t3.teachers
+            end as teachers
         from
             (
             select
                 l.id,
                 l.date,
                 l.title,
-                l.status,
+                l.status
+            from
+                lessons l
+            ) as t0
+        left join
+                (
+            select
+                l.id,
                 count(l.id) as "visitCount"
             from
                 lessons l
@@ -77,9 +95,10 @@ class LessonRepository extends BaseRepository_1.BaseRepository {
                 ls.visit = true
             group by
                 l.id) as t1
-        inner join 
-     (
-     
+            on
+            t0.id = t1.id
+        left join 
+         (
             select
                 s.lesson_id,
                 count(s.*) as "allCount",
@@ -97,12 +116,11 @@ class LessonRepository extends BaseRepository_1.BaseRepository {
                     ls2.student_id = s2.id) s
             group by
                 s.lesson_id 
-                
-                
-            ) as t2 on
-            t1.id = t2.lesson_id
-            
-        inner join (
+                    
+                    
+                ) as t2 on
+            t0.id = t2.lesson_id
+        left join (
             select
                 s.lesson_id,
                 ARRAY_AGG(s.id) teachers_id,
@@ -119,14 +137,14 @@ class LessonRepository extends BaseRepository_1.BaseRepository {
                     lt1.teacher_id = t.id) s
             group by
                 s.lesson_id
-    )
-    as t3 on
-            t1.id = t3.lesson_id 
+        )
+        as t3 on
+            t0.id = t3.lesson_id 
     ${filter}
-    limit ${limit} offset ${offset}
-    )
-    
-    as lesson_info;
+        limit ${limit} offset ${offset}
+        )
+        
+        as lesson_info;
     
     
         `;
