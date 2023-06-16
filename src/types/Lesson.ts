@@ -49,22 +49,19 @@ export type LessonTeacherRecord={
 };
 
 
-export type LessonSearchTest= {
-    key:keyof LessonQuery;
+export type LessonTest= {
+    key:string;
     tests:string[];
     isFinish:boolean;
     
-};
-export type LessonSaveTest= {
-    key:keyof LessonQuery;
-    tests:string[];
-    isFinish:boolean;
 };
 
 export type LessonSearchInputTest={
     [key in keyof LessonQuery]: string;
 } ;
-
+export type LessonSaveInputTest={
+    [key in keyof LessonSaveQuery]: string;
+} ;
 export const defaultPage:string="1";
 export const defaultPerPage:string="5";
 
