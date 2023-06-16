@@ -23,7 +23,12 @@ npm run start-dev
 ```
 ## Тестирование
 
-Данный раздел находится в разработке
+Данный раздел находится в разработке(тестирование REST API)
+Запустите тестирование приложения
+```bash
+npm run test
+```
+
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)

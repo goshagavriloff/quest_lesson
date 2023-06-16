@@ -11,12 +11,16 @@ export abstract class BaseRepository {
         this.tableName =tableName;
 
     }
-    private async tableExists(): Promise<boolean> {
+    public async tableExists(): Promise<boolean> {
       const query=`SELECT to_regclass('${this.db}.public.${this.tableName}');`;
-      return await this.queryIsNull(query);
+      return await this.queryIsNotNull(query);
     }
 
-    private async queryIsNull(query:string): Promise<boolean> {
+    public getTableName(){
+      return this.tableName;
+    }
+
+    private async queryIsNotNull(query:string,check_col:string="to_regclass"): Promise<boolean> {
       const client:PoolClient=await pgPool.connect();
  
       const res:QueryResult<any>=await client.query(query);
@@ -26,7 +30,7 @@ export abstract class BaseRepository {
         result=res.rows[0];
       }
       
-      return (result!==null)&&(result!==undefined);
+      return (result!==null)&&(result!==undefined)&&(result[check_col]!=null);
 
     }
 
@@ -53,7 +57,7 @@ export abstract class BaseRepository {
     public async recordExistsById(id:number): Promise<boolean> {    
       const query=`SELECT id from ${this.db}.public.${this.tableName} where id=${id};`;
 
-      return await this.queryIsNull(query);
+      return await this.queryIsNotNull(query);
     } 
 
 }
