@@ -35,7 +35,7 @@ const dbinit = async () => {
 
 dbinit();
 
-const port: number = 8000;
+const port: number = process.env.APP_PORT as unknown as number||8000;
 const app = new App().app;
 
 const server=app.listen(port, () => {

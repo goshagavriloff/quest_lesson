@@ -48,6 +48,23 @@ export type LessonTeacherRecord={
     teacher_id:number  
 };
 
+
+export type LessonSearchTest= {
+    key:keyof LessonQuery;
+    tests:string[];
+    isFinish:boolean;
+    
+};
+export type LessonSaveTest= {
+    key:keyof LessonQuery;
+    tests:string[];
+    isFinish:boolean;
+};
+
+export type LessonSearchInputTest={
+    [key in keyof LessonQuery]: string;
+} ;
+
 export const defaultPage:string="1";
 export const defaultPerPage:string="5";
 
@@ -55,5 +72,4 @@ export const limit={
     maxYearDist:1,
     maxCount:300
 };
-
 type StudentLessons=Student & {visit:boolean};
